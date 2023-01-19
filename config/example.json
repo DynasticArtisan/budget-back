@@ -1,0 +1,7 @@
+{
+    "REFRESHSECRET":"*****",
+    "ACCESSSECRET":"*****",
+    "PORT": 5000,
+    "DOMAIN": "*****",
+    "DBCONNECT": "*****"
+}

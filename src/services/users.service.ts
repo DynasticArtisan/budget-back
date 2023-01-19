@@ -14,11 +14,22 @@ class UsersService {
     return user._id;
   }
   async authorize(login: string, password: string) {
-    const user = await Users.findOne({ login, password });
+    const user = await Users.findOne({ login });
     if (!user) {
       throw ApiError.Forbiden("Неверный логин или пароль");
     }
+    const valid = await user.verify(password)
+    if(!valid){
+      throw ApiError.Forbiden("Неверный логин или пароль");
+    }
     return user;
+  }
+  async getUser(userId: string){
+    const user = await Users.findById(userId)
+    if(!user){
+      throw ApiError.NotFound("Пользователь не найден")
+    }
+    return user
   }
 }
 export default new UsersService();

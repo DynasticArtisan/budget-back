@@ -1,10 +1,11 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
+import config from 'config'
 
-const PORT = 5000;
-const DBCONNECT = "";
-const DOMAIN = "localhost";
+const PORT = config.get<number>("PORT");
+const DBCONNECT = config.get<string>("DBCONNECT");
+const DOMAIN = config.get<string>("DOMAIN");
 
 try {
   const app = express();
