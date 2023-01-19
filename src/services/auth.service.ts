@@ -8,19 +8,26 @@ const REFRESHSECRET = config.get<string>("REFRESHSECRET");
 const ACCESSSECRET = config.get<string>("ACCESSSECRET");
 
 class AuthService {
+    async register(login: string, password: string){
+        const { _id: userId } = await usersService.createUser(login, password)
+        const { accessToken, refreshToken} = this.generateTokens(String(userId))
+        await AuthModel.create({ userId, refreshToken })
+        return {
+            accessToken,
+            refreshToken
+        }
+    }
     async login(login: string, password: string){
         const { _id: userId } = await usersService.authorize(login, password)
-        const { accessToken, refreshToken} = await this.generateTokens(String(userId))
+        const { accessToken, refreshToken} = this.generateTokens(String(userId))
         const session = await AuthModel.findOneAndUpdate({ userId }, { refreshToken })
         if(!session){
             await AuthModel.create({ userId, refreshToken })
         }
         return {
-            userId,
             accessToken,
             refreshToken
         }
-
     }
     async refresh(refreshToken: string){
         const userId = this.validateRefreshToken(refreshToken)
@@ -32,13 +39,10 @@ class AuthService {
             throw ApiError.Forbiden("Сессия не найдена")
         }
         await usersService.getUser(String(auth.userId))
-        const tokens = await this.generateTokens(userId)
+        const tokens = this.generateTokens(userId)
         auth.refreshToken = tokens.refreshToken
         await auth.save()
-        return {
-            userId,
-            ...tokens
-        }
+        return tokens
 
     }
     async logout(refreshToken: string){
@@ -48,9 +52,13 @@ class AuthService {
         }
         return 
     }
-    async generateTokens(userId: string){
-        const accessToken = await jwt.sign(userId, ACCESSSECRET)
-        const refreshToken = await jwt.sign(userId, REFRESHSECRET)
+    generateTokens(userId: string){
+        const accessToken = jwt.sign(userId, ACCESSSECRET, {
+            expiresIn: "15m",
+          })
+        const refreshToken = jwt.sign(userId, REFRESHSECRET, {
+            expiresIn: "30d",
+          })
         return {
             accessToken,
             refreshToken

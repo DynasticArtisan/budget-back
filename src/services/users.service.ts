@@ -11,7 +11,7 @@ class UsersService {
     if (!user) {
       throw ApiError.BadRequest("Не удалось создать пользователя");
     }
-    return user._id;
+    return user;
   }
   async authorize(login: string, password: string) {
     const user = await Users.findOne({ login });

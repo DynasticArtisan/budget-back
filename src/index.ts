@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import config from 'config'
+import cookie from 'cookie-parser'
 
 const PORT = config.get<number>("PORT");
 const DBCONNECT = config.get<string>("DBCONNECT");
@@ -12,6 +13,7 @@ try {
   app.use(cors({ credentials: true, origin: DOMAIN }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(cookie())
 
   mongoose.set("strictQuery", true);
   mongoose.connect(DBCONNECT, {}, (error) => {
